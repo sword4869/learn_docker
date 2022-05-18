@@ -1,5 +1,5 @@
 [toc]
-[@toc]
+
 ---
 # List existing images
 
@@ -12,7 +12,9 @@ python                   3.8-slim-buster   9f9436d44487   2 months ago   114MB
 这个镜像的名字，`python` Respository 和 `3.8-slim-buster` Tag, 一起构成 `python:3.8-slim-buster`。
 
 - 镜像的命名规则，分两类。
+
 第一类官方镜像，`image-name:tag`。比如，`ubuntu:16.04`。
+
 第二类个人镜像，`user-name/image-name:tag`。比如`sandal33s/helloworld:1.0`，`sandal33s/helloworld:v3`。
 - 默认Tag : 是`latest`，不显示。比如，`python`就是`python-docker:latest`。
 
