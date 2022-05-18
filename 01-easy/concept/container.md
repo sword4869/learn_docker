@@ -30,18 +30,25 @@ When you run this command, the following happens:
 
 ## 交互终端
 
+### When creating
+
 用于可以交互终端的镜像，对不能交互的镜像来说该参数被忽略：
 
+两个一起的参数`-it`：
+
 - `-i`: 交互
+
 - `-t`: 进入终端
 
-可以简写在一起，`-it`
+> 不指定终端，就自动选择适合的终端
 
+ubuntu选择bash
 ```bash
 $ docker run -it ubuntu
 root@007c6081700d:/#
 ```
 
+python选择python解释器
 ```bash
 $ docker run -it python:3.8-slim-buster
 Python 3.8.12 (default, Feb 26 2022, 00:33:25) 
@@ -50,6 +57,12 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> 
 ```
 
+> 指定终端
+
+```bash
+$ docker run -it python:3.8-slim-buster bash
+```
+### When running
 
 可以利用`docker exec -it reverent_rosalind /bin/bash`来进入处于后台的容器。
 
@@ -151,6 +164,15 @@ $ docker stop <name of container>
 ```
 
 # Remove a container
+
+## Automaically remove
+
+`--rm`
+```bash
+$ docker run --rm -it ubuntu
+```
+
+## Manually remove
 
 正在运行的容器要停止后才能删除。
 ```bash

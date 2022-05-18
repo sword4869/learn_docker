@@ -1,7 +1,11 @@
+[toc]
+
+---
+
 # How to run in local host(not Docker)
 
 ```bash
-PS E:\CodeProject\Git\learn_docker\example_python> python -m flask run
+$ python -m flask run
  * Environment: production
    WARNING: This is a development server. Do not use it in a production deployment.
    Use a production WSGI server instead.
@@ -12,18 +16,49 @@ PS E:\CodeProject\Git\learn_docker\example_python> python -m flask run
 
 # Explain the Dockerfile
 
-`CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]`: This tells your operating system to listen on all public IPs. So Let's make the application externally visible (i.e. from outside the container) .
+`CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]`: 
+
+This tells your operating system to listen on all public IPs. So Let's make the application externally visible (i.e. from outside the container) .
 
 # Run in a container
 
-Build an image
+Build the project to an image
 ```bash
-PS E:\CodeProject\Git\learn_docker\example_python> docker build -t python-docker .  
+$ docker build -t python-docker .  
 ```
 
 Run a container: 映射container的5000端口到host的5000端口
 ```bash
-PS E:\CodeProject\Git\learn_docker\example_python> docker run --name python-docker-container -d -p 5000:5000 python-docker
+$ docker run --name python-docker-container -d -p 5000:5000 python-docker
 ```
 
-Open a browser `http://localhost:5000/` in host. You can see "Hello, Docker!" in the html page.
+Open a browser `http://localhost:5000/` in host. 
+
+You can see "Hello, Docker!" in the html page.
+
+# requirements
+
+## how to get this file?
+
+> method 1
+
+we can use pip freeze to output all library of python.
+```bash
+$ python -m pip freeze > requirements.txt
+```
+But, if you have installed other irrelevant library, this output includes them. So, it is fittable to use this method when you create a pure project development.
+
+> method2
+
+we manually write it.
+
+And the format is 
+```
+Flask==2.0.3
+mysql-connector-python==8.0.28
+```
+
+## how to use this file?
+```Dockerfile
+RUN pip3 install -r requirements.txt
+```
