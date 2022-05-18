@@ -12,38 +12,49 @@ COPY . .
 RUN yarn install --production
 CMD ["node", "src/index.js"]
 ```
-- `# syntax=docker/dockerfile:1`：
+## syntax
+`# syntax=docker/dockerfile:1`：
 
 '1'，表示使用最新的Dockerfile语法。
 
-- `FROM <image_name>`: 
+## FROM
+`FROM <image_name>`: 
 
 使用的image。
 
-- `WORKDIR /app`: 
+## WORKDIR
+
+`WORKDIR /app`: 
 
 指定此命令后所有Docker命令的工作路径。这里在是在container内部的`/app`根目录下的app目录中。
 
 docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一层。只有通过 WORKDIR 创建的目录才会一直存在。
 
-- `COPY . .`: 
+## COPY and ADD
+
+`COPY . .`: 
 
 将本地文件拷贝到Docker中，这里上下文所在的本地文件复制到Docker的`WORKDIR`中。
 
-- `RUN`: 
 
-创建镜像时使用的shell命令。
 
-`RUN ["可执行文件", "参数1", "参数2"]` or `RUN 可执行文件 参数1 参数2`。
-注意是`"`，`'`不行。
+需要注意的是，ADD 指令会令镜像构建缓存失效，从而可能会令镜像构建变得比较缓慢。
 
-- `CMD`: 
+因此在 COPY 和 ADD 指令中选择的时候，可以遵循这样的原则，所有的文件复制均使用 COPY 指令，仅在需要自动解压缩的场合使用 ADD。
 
-运行容器时使用的shell命令。
+## RUN
 
-注意：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。这就是为什么不能用CMD代替RUN。
+> 创建镜像时使用的shell命令。
 
-## 合并RUN
+- exec格式：
+
+`RUN ["可执行文件", "参数1", "参数2"]`
+- shell 格式：
+
+`RUN 可执行文件 参数1 参数2`。注意是`"`，`'`不行。
+
+
+> 合并RUN
 
 每一个RUN命令都是加一层镜像。所以建议命令合并写:
 ```bash
@@ -58,21 +69,113 @@ RUN yum -y install wget \
 ```
 创建3层镜像变成，只会创建1层镜像。
 
+> Upgrade问题
 
 
+不要使用 `RUN apt-get upgrade` 或 `dist-upgrade`，这样会升级不必要的包。
+
+如果你确定某个特定的包，比如 foo，需要升级，使用 `apt-get install -y foo` 就行，该指令会自动升级 foo 包。
+
+> 缓存问题
+
+永远将 `RUN apt-get update` 和 `apt-get install` 组合成一条 RUN 声明，例如：
+
+```Dockerfile
+RUN apt-get update && apt-get install -y \
+        package-bar \
+        package-baz \
+        package-foo
+```
+将 `apt-get update` 放在一条单独的 RUN 声明中会导致缓存问题以及后续的 `apt-get install` 安装老版本。
+
+比如，假设你有一个 Dockerfile 文件：
+
+```Dockerfile
+FROM ubuntu:18.04
+
+RUN apt-get update
+
+RUN apt-get install -y curl
+```
+构建镜像后，所有的层都在 Docker 的缓存中。假设你后来又修改了其中的 apt-get install 添加了一个包：
+```Dockerfile
+FROM ubuntu:18.04
+
+RUN apt-get update
+
+RUN apt-get install -y curl nginx
+```
+Docker 发现修改后的 `RUN apt-get update` 指令和之前的完全一样。所以，这层`apt-get update` 不会执行，而是使用之前的缓存镜像。因为 `apt-get update` 没有运行，后面的 `apt-get install` 可能安装的是过时的 curl 和 nginx 版本。
+
+## CMD
+
+`CMD`: 
+
+运行容器时使用的shell命令。
+
+如果使用 shell 格式的话，实际的命令会被包装为 `sh -c` 的参数的形式进行执行。比如，`CMD echo $HOME`就是`CMD [ "sh", "-c", "echo $HOME"]`
+
+> 最后一个
+
+注意：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。这就是为什么不能用CMD代替RUN。
+
+> 前台和后台
+
+```Dockerfile
+CMD service nginx start
+```
+
+出现问题，容器执行后就立即退出了。甚至在容器内去使用 systemctl 命令结果却发现根本执行不了。
+
+对于容器而言，其启动程序就是容器应用进程，主进程结束容器就结束。
+
+而使用 `service nginx start` 命令，则是希望以后台守护进程形式启动 nginx 服务。而刚才说了 `CMD service nginx start` 会被理解为 `CMD [ "sh", "-c", "service nginx start"]`，因此主进程实际上是 sh。那么当命令结束后，sh 也就结束了，sh 作为主进程退出了，自然就会令容器退出。
+
+正确的做法是直接执行 nginx 可执行文件，并且要求以前台形式运行。比如：
+
+```Dockerfile
+CMD ["nginx", "-g", "daemon off;"]
+```
 
 ## ENV
 
-```bash
+```Dockerfile
 ENV <key> <value>
 ENV <key1>=<value1> <key2>=<value2>...
 ```
-```bash
+
+例子：
+
+- 指定版本号
+
+```Dockerfile
 ENV NODE_VERSION 7.2.0
 
 RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" \
   && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc"
 ```
+
+- 指定PATH
+
+例如使用 `ENV PATH /usr/local/nginx/bin:$PATH` 来确保 `CMD ["nginx"]` 能正确运行。
+
+## EXPOSE
+
+格式为 `EXPOSE <端口1> [<端口2>...]`。
+
+- 屁用没用
+
+要将 EXPOSE 和在运行时使用 `-p <宿主端口>:<容器端口>` 区分开来。EXPOSE 仅仅是声明容器打算使用什么端口而已，在容器运行时并不会因为这个声明应用就会开启这个端口的服务。而且，后者指定时可以覆盖前者声明的端口。
+
+- 随机映射时起作用
+
+另一个用处则是在运行时使用随机端口映射时，也就是 `docker run -P` 时，会自动随机映射 EXPOSE 的端口。
+
+- 对VSCode的Docker插件起作用
+
+会让其运行时选中指定的端口。
+
+
 
 # 用Dockerfile创建镜像 
 
