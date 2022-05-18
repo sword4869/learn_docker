@@ -1,3 +1,5 @@
+[toc]
+---
 # Run a container
 
 The following command runs an ubuntu container, attaches interactively to your local command-line session, and runs /bin/bash.
