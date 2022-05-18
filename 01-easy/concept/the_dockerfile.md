@@ -113,6 +113,12 @@ COPY ./package.json /app
 
 ## 用Git
 ```bash
-$ docker build -t easy-flask https://
+$ docker build -t easy-flask https://github.com/sword4869/learn_docker.git#main:01-easy/example_python
 ```
 `<https://xxx/xxx.git>#<branch>:<context>`
+
+## 用压缩包
+```bash
+$ docker build - < context.tar.gz
+```
+自动解压缩，以其作为上下文，开始构建。

@@ -2,7 +2,7 @@
 ---
 
 
-# Create a container and run it
+# Create and Start
 
 ## 基本
 
@@ -146,9 +146,34 @@ $ docker run -v myvolume:/var/lib/mysql mysql
 ```
 `-v/--volume`: `<name of volume>:<path/to/mount>`
 
+# List
+> running
+```bash
+# or `docker container ls`
+$ docker ps
+CONTAINER ID   IMAGE                    COMMAND   CREATED       STATUS         PORTS     NAMES
+53d34d961f35   python:3.8-slim-buster   "bash"    2 hours ago   Up 3 seconds             angry_euler
+```
+> all, include exited
+```bash
+# or `docker container ls -a`
+$ docker ps -a
+CONTAINER ID   IMAGE                    COMMAND                  CREATED        STATUS                      PORTS     NAMES
+2a6c4ac291c4   python:3.8-slim-buster   "bash"                   2 hours ago    Exited (0) 2 hours ago                naughty_pascal
+```
+
+> last
+
+```bash
+# or `docker container ls -l`
+$ docker ps -l
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS                     PORTS     NAMES
+5e62446db54c   test33    "/bin/sh -c 'python3…"   5 minutes ago   Exited (0) 5 minutes ago             busy_bouman
+```
+
 # Start a container
 ```bash
-$ docker start <name of container>
+$ docker container start <container name>
 ```
 
 # Restart a container
