@@ -1,8 +1,8 @@
 [toc]
 ---
-# Run a container
 
-The following command runs an ubuntu container, attaches interactively to your local command-line session, and runs /bin/bash.
+
+# Create a container and run it
 
 ## 基本
 
@@ -31,9 +31,11 @@ When you run this command, the following happens:
 ## 交互终端
 
 用于可以交互终端的镜像，对不能交互的镜像来说该参数被忽略：
-`-i`: 交互
-`-t`: 进入终端
-可以简写在一起的参数，`-it`
+
+- `-i`: 交互
+- `-t`: 进入终端
+
+可以简写在一起，`-it`
 
 ```bash
 $ docker run -it ubuntu
@@ -67,7 +69,7 @@ Linux version 5.10.16.3-microsoft-standard-WSL2 (oe-user@oe-host) (x86_64-msft-l
 
 ## 容器命名
 
-默认是随机命名
+> 默认是随机命名
 ```bash
 $ docker run docker/getting-started
 
@@ -76,6 +78,7 @@ $ docker ps -l
 ... hopeful_faraday
 ```
 
+> 指定名字 name
 ```bash
 $ docker run --name <name of container> docker/getting-started
 ```
@@ -129,26 +132,6 @@ $ docker volume rm myvolume         # 删除
 $ docker run -v myvolume:/var/lib/mysql mysql
 ```
 `-v/--volume`: `<name of volume>:<path/to/mount>`
-
-# List containers
-
-```bash
-$ docker ps
-CONTAINER ID   IMAGE                    COMMAND                  CREATED        STATUS         PORTS                NAMES
-2437d1cb68a2   python-docker   "/docker-entrypoint.…"   14 hours ago   Up 3 seconds   0.0.0.0:8000->80/tcp   zealous_lalande
-```
-只显示正在运行的容器。
-
-
-```bash
-$ docker ps -a
-```
-`-a/--all`: we see all containers on our machine, irrespective of their start or stop status
-
-```bash
-$ docker ps -l
-```
-`-l`: 显示最近启动的容器。
 
 # Start a container
 ```bash
