@@ -19,7 +19,7 @@ $ python -m flask run
 ## Pip合并
 
 ```Dockerfile
-COPY requirements .
+COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 COPY . .
