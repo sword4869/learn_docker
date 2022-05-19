@@ -56,7 +56,8 @@ docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一�
 
 > 合并RUN
 
-每一个RUN命令都是加一层镜像。所以建议命令合并写:
+Dockerfile 中每一个指令都会建立一层。
+所以可以合并的RUN就合并:
 ```bash
 RUN yum -y install wget
 RUN wget -O redis.tar.gz "http://download.redis.io/releases/redis-5.0.3.tar.gz"

@@ -16,6 +16,26 @@ $ python -m flask run
 
 # Explain the Dockerfile
 
+## Pip合并
+
+```Dockerfile
+COPY requirements .
+RUN pip3 install -r requirements.txt
+
+COPY . .
+```
+```Dockerfile
+COPY . .
+RUN pip3 install -r requirements.txt
+```
+区别就是，再重构镜像时，前者不会再下一遍库，而后者要重新下库。
+
+`COPY . .`，当文件变化的时候，`.`里面的内容肯定不一样了，那么这层及其以后的肯定要重新加载。
+
+而一般requirements.txt是没有变化，即安装python库，就可以不用再下一遍库，直接用缓存好的层。这就是前者将pip安装的库独立成一层的原因。
+
+## CMD
+
 `CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]`: 
 
 This tells your operating system to listen on all public IPs. So Let's make the application externally visible (i.e. from outside the container) .
@@ -54,8 +74,12 @@ we manually write it.
 
 And the format is 
 ```
+# specify version
 Flask==2.0.3
-mysql-connector-python==8.0.28
+```
+```
+# none version
+mysql-connector-python
 ```
 
 ## how to use this file?
