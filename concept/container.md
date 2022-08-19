@@ -88,6 +88,8 @@ $ docker run ubuntu cat /proc/version
 Linux version 5.10.16.3-microsoft-standard-WSL2 (oe-user@oe-host) (x86_64-msft-linux-gcc (GCC) 9.3.0, GNU ld (GNU Binutils) 2.34.0.20200220) #1 SMP Fri Apr 2 22:23:49 UTC 2021
 ```
 
+If you have many commant to run, you can write a script in your local device, `docker run ubuntu myscript.sh`
+
 
 
 ## 1.4. 容器命名
