@@ -1,9 +1,19 @@
-[toc]
-
+- [1. List image](#1-list-image)
+  - [1.1. list](#11-list)
+  - [1.2. Specify list](#12-specify-list)
+- [2. Remove image](#2-remove-image)
+  - [2.1. remove](#21-remove)
+  - [2.2. dangling image](#22-dangling-image)
+- [3. Create](#3-create)
+  - [3.1. Get remote sources](#31-get-remote-sources)
+  - [3.2. Commit](#32-commit)
+  - [3.3. Dockerfile](#33-dockerfile)
+- [4. Push to Registry](#4-push-to-registry)
+- [5. History](#5-history)
 ---
-# List image
+# 1. List image
 
-## list
+## 1.1. list
 
 `ls/list`
 ```bash
@@ -15,17 +25,13 @@ python                   3.8-slim-buster   9f9436d44487   2 months ago   114MB
 这个镜像的名字，`python` Respository 和 `3.8-slim-buster` Tag, 一起构成 `python:3.8-slim-buster`。
 
 - 镜像的命名规则，`user-name/image-name:tag`。
-
-比如`sandal33s/helloworld:1.0`，`sandal33s/helloworld:v3`。
+  比如`sandal33s/helloworld:1.0`，`sandal33s/helloworld:v3`。
 - 默认 user-name 和默认 Tag : 
+  官方镜像默认`user-name`是`library`，且可以不显示。
+  默认 Tag 是`latest`，且可以不显示。
+  比如，`ubuntu`就是`library/ubuntu:latest`。
 
-官方镜像默认`user-name`是`library`，且可以不显示。
-
-默认 Tag 是`latest`，且可以不显示。
-
-比如，`ubuntu`就是`library/ubuntu:latest`。
-
-## Specify list
+## 1.2. Specify list
 
 > according name
 ```bash
@@ -58,11 +64,11 @@ e983e5d89352
 
 This is used to pass the result to remove command.
 
-# Remove image
+# 2. Remove image
 
 要删除镜像，就得先把和它的容器都删完了，然后才能删镜像。这是因为Layer filesystem，最下层是镜像，所以删除镜像就有容器依赖丢失问题。
 
-## remove
+## 2.1. remove
 
 > according id
 
@@ -83,15 +89,15 @@ $ docker image rm ubuntu:18.04
 ```
 
 
-## dangling image
+## 2.2. dangling image
 
 quick remove all dangling images.
 ```bash
 $ docker image prune
 ```
 
-# Create
-## Get remote sources
+# 3. Create
+## 3.1. Get remote sources
 
 When you use the `docker pull` or `docker run` commands, the required images are pulled from your configured registry.
 
@@ -102,7 +108,7 @@ $ docker pull ubuntu:18.04
 $ docker run ubuntu:18.04
 ```
 
-## Commit
+## 3.2. Commit
 
 ```bash
 # docker commit <container name> <image name>
@@ -114,19 +120,19 @@ $ docker commit webserver nginx:v2
 
 所以，不要使用 docker commit 定制镜像，定制镜像应该使用 Dockerfile 来完成。
 
-## Dockerfile
+## 3.3. Dockerfile
 [the_dockerfile.md](./the_dockerfile.md)
 
-# Push to Registry
+# 4. Push to Registry
 
 ```bash
-$ docker push
+$ docker image push
 ```
 your image is pushed to your configured registry.
 
-# History
+# 5. History
 ```bash
-$ docker history python-docker-dev
+$ docker image history python-docker-dev
 IMAGE          CREATED        CREATED BY                                      SIZE      COMMENT
 e983e5d89352   2 months ago   CMD ["python3" "-m" "flask" "run" "--host=0.…   0B        buildkit.dockerfile.v0
 <missing>      2 months ago   RUN /bin/sh -c pip3 install -r requirements.…   163MB     buildkit.dockerfile.v0

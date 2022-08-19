@@ -1,33 +1,27 @@
-[toc]
+- [1. Create and Start](#1-create-and-start)
+  - [1.1. 基本](#11-基本)
+  - [1.2. 交互终端](#12-交互终端)
+    - [1.2.1. When creating](#121-when-creating)
+  - [1.3. 启动时执行命令](#13-启动时执行命令)
+  - [1.4. 容器命名](#14-容器命名)
+  - [1.5. 后台](#15-后台)
+    - [1.5.1. log](#151-log)
+    - [1.5.2. 进入后台](#152-进入后台)
+  - [1.6. 端口映射](#16-端口映射)
+  - [1.7. 挂载Volume](#17-挂载volume)
+- [2. List](#2-list)
+- [3. Start|Stop|Restart](#3-startstoprestart)
+- [4. Operate a running container](#4-operate-a-running-container)
+  - [4.1. 启动后执行命令](#41-启动后执行命令)
+- [5. Remove](#5-remove)
+  - [5.1. Automaically remove](#51-automaically-remove)
+  - [5.2. Manually remove exited](#52-manually-remove-exited)
+  - [5.3. Remove all exited](#53-remove-all-exited)
+
 ---
+# 1. Create and Start
 
-# List
-> running
-```bash
-# or `docker container ls`
-$ docker ps
-CONTAINER ID   IMAGE                    COMMAND   CREATED       STATUS         PORTS     NAMES
-53d34d961f35   python:3.8-slim-buster   "bash"    2 hours ago   Up 3 seconds             angry_euler
-```
-> all, include exited
-```bash
-# or `docker container ls -a`
-$ docker ps -a
-CONTAINER ID   IMAGE                    COMMAND                  CREATED        STATUS                      PORTS     NAMES
-2a6c4ac291c4   python:3.8-slim-buster   "bash"                   2 hours ago    Exited (0) 2 hours ago                naughty_pascal
-```
-
-> last
-
-```bash
-# or `docker container ls -l`
-$ docker ps -l
-CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS                     PORTS     NAMES
-5e62446db54c   test33    "/bin/sh -c 'python3…"   5 minutes ago   Exited (0) 5 minutes ago             busy_bouman
-```
-# Create and Start
-
-## 基本
+## 1.1. 基本
 
 ```bash
 # 使用指定镜像来创建一个容器
@@ -51,9 +45,9 @@ When you run this command, the following happens:
 
 
 
-## 交互终端
+## 1.2. 交互终端
 
-### When creating
+### 1.2.1. When creating
 
 用于可以交互终端的镜像，对不能交互的镜像来说该参数被忽略：
 
@@ -85,11 +79,9 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```bash
 $ docker run -it python:3.8-slim-buster bash
 ```
-### When running
 
-可以利用`docker exec -it reverent_rosalind /bin/bash`来进入处于后台的容器。
 
-## 启动时执行命令
+## 1.3. 启动时执行命令
 
 ```bash
 $ docker run ubuntu cat /proc/version
@@ -98,13 +90,13 @@ Linux version 5.10.16.3-microsoft-standard-WSL2 (oe-user@oe-host) (x86_64-msft-l
 
 
 
-## 容器命名
+## 1.4. 容器命名
 
 > 默认是随机命名
 ```bash
-$ docker run test33
+$ docker run ubuntu
 
-$ docker ps -l 
+$ docker container ls -l 
 ... NAMES
 ... hopeful_faraday
 ```
@@ -112,13 +104,13 @@ $ docker ps -l
 > 指定名字 name
 ```bash
 # docker run --name <container name> <image name>
-$ docker run --name busy_bouman test33
+$ docker run --name my_ubuntu ubuntu
 ```
 
-## 后台
+## 1.5. 后台
 
 ```bash
-$ docker run -d docker/getting-started
+$ docker run -d ubuntu
 ```
 `-d/--detach` - run the container in detached mode (in the background)
 
@@ -126,22 +118,29 @@ $ docker run -d docker/getting-started
 
 如果使用了 `-d` 参数运行容器。此时容器会在后台运行并不会把输出的结果 (STDOUT) 打印到宿主机上面(输出结果可以用 `docker logs` 查看)。
 
+### 1.5.1. log
+
 ```bash
-# docker logs <container name or id>
-# or docker container logs <container name or id>
-$ docker logs busy_bouman
+# or docker logs <container name or id>
+$ docker container logs my_ubuntu
 hello
 ```
+- `f` : 跟踪日志输出
 
+- `t` : 显示时间戳
 
-## 端口映射
+### 1.5.2. 进入后台
+
+当容器正在后台运行时，可以利用`docker container exec -it my_ubuntu /bin/bash`来进入处于后台的容器。
+
+## 1.6. 端口映射
 
 ```bash
 $ docker run -d -p 8000:80 docker/getting-started
 8094c7cb8aa7e2ec55c78fbe6c80ccf7f7a5c440a4bd979584cf27fc074f2551
 
 # 查看端口方式1
-$ docker ps -l
+$ docker container ls -l
 CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                  NAMES
 8094c7cb8aa7   docker/getting-started   "/docker-entrypoint.…"   25 seconds ago   Up 24 seconds   0.0.0.0:8000->80/tcp   hopeful_faraday
 ```
@@ -158,11 +157,8 @@ $ docker port happy_galois
 `-P`: 随机映射。现在在主机浏览器输入`http://localhost:49153`就能进入前端。
 
 
-```bash
 
-```
-
-## 挂载Volume
+## 1.7. 挂载Volume
 
 ```bash
 $ docker volume create myvolume     # 创建数据卷`myvolume`
@@ -174,73 +170,92 @@ $ docker volume rm myvolume         # 删除
 ```bash
 $ docker run -v myvolume:/var/lib/mysql mysql
 ```
-`-v/--volume`: `<name of volume>:<path/to/mount>`
+`-v/--volume`: `<local_path>:<container_path>`.
 
 
-# Start a container
+# 2. List
+> running
 ```bash
-# docker container start <container name>
-$ docker start <container name>
+# or `docker ps`
+$ docker container ls
+CONTAINER ID   IMAGE                    COMMAND   CREATED       STATUS         PORTS     NAMES
+53d34d961f35   python:3.8-slim-buster   "bash"    2 hours ago   Up 3 seconds             angry_euler
+```
+> all, include exited
+```bash
+# or `docker ps -a`
+$ docker container ls -a
+CONTAINER ID   IMAGE                    COMMAND                  CREATED        STATUS                      PORTS     NAMES
+2a6c4ac291c4   python:3.8-slim-buster   "bash"                   2 hours ago    Exited (0) 2 hours ago                naughty_pascal
 ```
 
-# Operate a running container
-
-## 启动后执行命令
+> last
 
 ```bash
-# or docker container exec <container name or id>
-$ docker exec <container name or id>
+# or `docker ps -l`
+$ docker container ls -l
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS                     PORTS     NAMES
+5e62446db54c   test33    "/bin/sh -c 'python3…"   5 minutes ago   Exited (0) 5 minutes ago             busy_bouman
+```
+# 3. Start|Stop|Restart
+```bash
+# docker start|stop|restart <container name>
+$ docker container start|stop <container name>
+```
+
+Notice: When you restart a container, it starts **with the same flags or commands** that it was originally started with. 这很方便。
+
+# 4. Operate a running container
+
+## 4.1. 启动后执行命令
+
+```bash
+# or docker exec <container name or id>
+$ docker container exec <container name or id>
 ```
 
 比如
 
 ```bash
-$ docker exec happy_galois cat /proc/version
+$ docker container exec my_ubuntu cat /proc/version
 Linux version 5.10.16.3-microsoft-standard-WSL2 (oe-user@oe-host) (x86_64-msft-linux-gcc (GCC) 9.3.0, GNU ld (GNU Binutils) 2.34.0.20200220) #1 SMP Fri Apr 2 22:23:49 UTC 2021
 ```
 ```bash
 # 让后台的调出终端
 # 而且这里必须指定一个COMMAND，不会自适应调出终端，只能手动指定bash。
-$ docker exec -it happy_galois bash
+$ docker exec -it my_ubuntu bash
 root@011e5ebaf23e:/#
 ```
 
 
-# Restart a container
-```bash
-$ docker restart <name of container>
-```
-Notice: When you restart a container, it starts **with the same flags or commands** that it was originally started with. 这很方便。
 
-# Stop a container
 
-```bash
-# or docker container stop <container name>
-$ docker stop <container name>
-```
 
-# Remove
 
-## Automaically remove
+# 5. Remove
+
+## 5.1. Automaically remove
 
 `--rm`
 ```bash
 $ docker run --rm -it ubuntu
 ```
 
-## Manually remove exited
+## 5.2. Manually remove exited
 
 正在运行的容器要停止后才能删除。
 
 ```bash
-# or docker container rm <container name or id>
-$ docker rm python-docker agitated_moser goofy_khayyam
+# or docker rm [<container name or id>]
+$ docker container rm my_ubuntu agitated_moser goofy_khayyam
 ```
 一次能删除多个
 
-When a container is removed, any changes to its state that are not stored in persistent storage disappear.另外保存下来不删档的数据区域 Volume。
+When a container is removed, any changes to its state that are not stored in persistent storage disappear.
 
-## Remove all exited
+要另外保存下来不删档的数据区域 Volume。
+
+## 5.3. Remove all exited
 
 如果数量太多要一个个删除可能会很麻烦，用下面的命令可以清理掉所有处于终止状态的容器。
 ```

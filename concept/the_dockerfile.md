@@ -1,6 +1,19 @@
-[toc]
+- [1. Dockerfile Format](#1-dockerfile-format)
+  - [1.1. syntax](#11-syntax)
+  - [1.2. FROM](#12-from)
+  - [1.3. WORKDIR](#13-workdir)
+  - [1.4. COPY and ADD](#14-copy-and-add)
+  - [1.5. RUN](#15-run)
+  - [1.6. CMD](#16-cmd)
+  - [1.7. ENV](#17-env)
+  - [1.8. EXPOSE](#18-expose)
+- [2. 用Dockerfile创建镜像](#2-用dockerfile创建镜像)
+  - [2.1. build](#21-build)
+  - [2.2. Context](#22-context)
+  - [2.3. 用Git](#23-用git)
+  - [2.4. 用压缩包](#24-用压缩包)
 ---
-# Dockerfile Format
+# 1. Dockerfile Format
 ```
 # syntax=docker/dockerfile:1
 
@@ -12,17 +25,17 @@ COPY . .
 RUN yarn install --production
 CMD ["node", "src/index.js"]
 ```
-## syntax
+## 1.1. syntax
 `# syntax=docker/dockerfile:1`：
 
 '1'，表示使用最新的Dockerfile语法。
 
-## FROM
+## 1.2. FROM
 `FROM <image_name>`: 
 
 使用的image。
 
-## WORKDIR
+## 1.3. WORKDIR
 
 `WORKDIR /app`: 
 
@@ -30,7 +43,7 @@ CMD ["node", "src/index.js"]
 
 docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一层。只有通过 WORKDIR 创建的目录才会一直存在。
 
-## COPY and ADD
+## 1.4. COPY and ADD
 
 `COPY . .`: 
 
@@ -42,7 +55,7 @@ docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一�
 
 因此在 COPY 和 ADD 指令中选择的时候，可以遵循这样的原则，所有的文件复制均使用 COPY 指令，仅在需要自动解压缩的场合使用 ADD。
 
-## RUN
+## 1.5. RUN
 
 > 创建镜像时使用的shell命令。
 
@@ -108,7 +121,7 @@ RUN apt-get install -y curl nginx
 ```
 Docker 发现修改后的 `RUN apt-get update` 指令和之前的完全一样。所以，这层`apt-get update` 不会执行，而是使用之前的缓存镜像。因为 `apt-get update` 没有运行，后面的 `apt-get install` 可能安装的是过时的 curl 和 nginx 版本。
 
-## CMD
+## 1.6. CMD
 
 `CMD`: 
 
@@ -138,7 +151,7 @@ CMD service nginx start
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-## ENV
+## 1.7. ENV
 
 ```Dockerfile
 ENV <key> <value>
@@ -160,7 +173,7 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 
 例如使用 `ENV PATH /usr/local/nginx/bin:$PATH` 来确保 `CMD ["nginx"]` 能正确运行。
 
-## EXPOSE
+## 1.8. EXPOSE
 
 格式为 `EXPOSE <端口1> [<端口2>...]`。
 
@@ -178,19 +191,19 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 
 
 
-# 用Dockerfile创建镜像 
+# 2. 用Dockerfile创建镜像 
 
-## build
+## 2.1. build
 
 ```bash
 # docker build -t <image name> <context>
-$ docker build -t python-dev .
+$ docker image build -t python-dev .
 ```
 - `-t/--tag`: 
 
 不能省略。set the name of our image. 
 
-## Context
+## 2.2. Context
 
 > 指定上下文（Context），还是指定 Dockerfile 所在路径？
 
@@ -215,14 +228,14 @@ COPY ./package.json /app
 
 所以这些路径已经超出了上下文的范围，Docker 引擎无法获得这些位置的文件。如果真的需要那些文件，应该将它们复制到上下文目录中去。
 
-## 用Git
+## 2.3. 用Git
 ```bash
-$ docker build -t easy-flask https://github.com/sword4869/learn_docker.git#main:01-easy/example_python
+$ docker image build -t easy-flask https://github.com/sword4869/learn_docker.git#main:01-easy/example_python
 ```
 `<https://xxx/xxx.git>#<branch>:<context>`
 
-## 用压缩包
+## 2.4. 用压缩包
 ```bash
-$ docker build - < context.tar.gz
+$ docker image build - < context.tar.gz
 ```
 自动解压缩，以其作为上下文，开始构建。
