@@ -3,10 +3,11 @@
   - [1.2. FROM](#12-from)
   - [1.3. WORKDIR](#13-workdir)
   - [1.4. COPY and ADD](#14-copy-and-add)
-  - [1.5. RUN](#15-run)
-  - [1.6. CMD](#16-cmd)
-  - [1.7. ENV](#17-env)
-  - [1.8. EXPOSE](#18-expose)
+  - [1.5. RUN && CMD](#15-run--cmd)
+    - [1.5.1. RUN](#151-run)
+    - [1.5.2. CMD](#152-cmd)
+  - [1.6. ENV](#16-env)
+  - [1.7. EXPOSE](#17-expose)
 - [2. 用Dockerfile创建镜像](#2-用dockerfile创建镜像)
   - [2.1. build](#21-build)
   - [2.2. Context](#22-context)
@@ -55,16 +56,20 @@ docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一�
 
 因此在 COPY 和 ADD 指令中选择的时候，可以遵循这样的原则，所有的文件复制均使用 COPY 指令，仅在需要自动解压缩的场合使用 ADD。
 
-## 1.5. RUN
+## 1.5. RUN && CMD
 
-> 创建镜像时使用的shell命令。
+RUN和CMD都是shell命令。
+RUN在docker build时运行，CMD在docker run时运行。
 
+格式：
 - exec格式：
+  `RUN/CMD ["可执行文件", "参数1", "参数2"]`。注意是`"`，`'`不行。
 
-`RUN ["可执行文件", "参数1", "参数2"]`
 - shell 格式：
+  `RUN/CMD 可执行文件 参数1 参数2`。
+  如果使用 shell 格式的话，实际的命令会被包装为 `sh -c` 的参数的形式进行执行。比如，`RUN echo $HOME`就是`RUN [ "sh", "-c", "echo $HOME"]`
 
-`RUN 可执行文件 参数1 参数2`。注意是`"`，`'`不行。
+### 1.5.1. RUN
 
 
 > 合并RUN
@@ -124,13 +129,8 @@ Docker 发现修改后的 `RUN apt-get update` 指令和之前的完全一样。
 Do you want to continue? [Y/n] Abort.
 ```
 所以加上yes，即`RUN apt-get update && apt-get install python3-dev -y`
-## 1.6. CMD
+### 1.5.2. CMD
 
-`CMD`: 
-
-运行容器时使用的shell命令。
-
-如果使用 shell 格式的话，实际的命令会被包装为 `sh -c` 的参数的形式进行执行。比如，`CMD echo $HOME`就是`CMD [ "sh", "-c", "echo $HOME"]`
 
 > 最后一个
 
@@ -154,7 +154,7 @@ CMD service nginx start
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-## 1.7. ENV
+## 1.6. ENV
 
 ```Dockerfile
 ENV <key> <value>
@@ -176,7 +176,7 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 
 例如使用 `ENV PATH /usr/local/nginx/bin:$PATH` 来确保 `CMD ["nginx"]` 能正确运行。
 
-## 1.8. EXPOSE
+## 1.7. EXPOSE
 
 格式为 `EXPOSE <端口1> [<端口2>...]`。
 
