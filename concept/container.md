@@ -251,7 +251,7 @@ $ docker run --rm -it ubuntu
 
 ```bash
 # or docker rm [<container name or id>]
-$ docker container rm my_ubuntu agitated_moser goofy_khayyam
+$ docker container rm my_ubuntu agitated_moser
 ```
 一次能删除多个
 
