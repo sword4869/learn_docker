@@ -10,8 +10,6 @@
 - [2. 用Dockerfile创建镜像](#2-用dockerfile创建镜像)
   - [2.1. build](#21-build)
   - [2.2. Context](#22-context)
-  - [2.3. 用Git](#23-用git)
-  - [2.4. 用压缩包](#24-用压缩包)
 ---
 # 1. Dockerfile Format
 ```
@@ -84,16 +82,46 @@ RUN yum -y install wget \
 创建3层镜像变成，只会创建1层镜像。
 
 
-另一个写法：
+另一种 Heredoc 写法：
 ```bash
 RUN <<EOF
-# because taming-transformers is huge
-git config --global http.postBuffer 1048576000
-git clone https://github.com/CompVis/taming-transformers.git repositories/taming-transformers
-git reset --hard 24268930bf1dce879235a7fddd0b2355b84d7ea6
-rm -rf repositories/taming-transformers/data repositories/taming-transformers/assets
+yum -y install wget
+wget -O redis.tar.gz "http://download.redis.io/releases/redis-5.0.3.tar.gz"
+tar -xvf redis.tar.gz
 EOF
 ```
+
+!!!info 注意：Heredoc需要docker使用BuildKit。
+
+没有开启BuildKit的样子，是这样的` ---> `：
+```bash
+$ sudo docker build -t test .
+Sending build context to Docker daemon  4.096kB
+Step 1/4 : FROM python:3.8-slim-buster
+ ---> 60abb4f18941
+Step 2/4 : WORKDIR /app
+```
+开启BuildKit的样子，是这样的`=>`：
+```bash
+$ sudo docker build -t test .
+[+] Building 7.8s (10/12)
+ => [internal] load build definition from Dockerfile    0.0s
+ => => transferring dockerfile: 38B                     0.0s
+ => [internal] load .docke
+```
+
+在build临时使用BuildKit就是
+```bash
+$ sudo DOCKER_BUILDKIT=1 docker build -t test .
+```
+长久使用就直接修改配置文件：
+```bash
+$ sudo vim /etc/docker/daemon.json
+{ "features": { "buildkit": true } }
+
+$ sudo service restart docker
+```
+
 
 > Upgrade问题
 
@@ -215,6 +243,42 @@ $ docker image build -t python-dev .
 
 不能省略。set the name of our image. 
 
+!!! warning 重名镜像
+
+当你指定名字build镜像后，出现了`test`镜像。在不修改Dockerfile的情况下，我们再次build名为`test`的镜像，直接build好了，而且没有新的镜像生成。这没有问题。
+```bash
+$ sudo docker build -t test .
+
+$ sudo docker image ls
+REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
+test         latest            492afcedda29   2 minutes ago   221MB
+python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
+
+$ sudo docker build -t test .
+
+$ sudo docker image ls
+REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
+test         latest            492afcedda29   2 minutes ago   221MB
+python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
+```
+但是，当你指定名字build镜像后，生成了`test`镜像，又在修改Dockerfile后，再次build名为`test`的镜像，确实成功build了新的名为`test`镜像，同时原来的镜像就会被挤掉名字。
+```bash
+$ sudo docker build -t test .
+
+$ sudo docker image ls
+REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
+test         latest            492afcedda29   2 minutes ago   221MB
+python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
+
+$ sudo docker build -t test .
+
+$ sudo docker image ls
+REPOSITORY   TAG               IMAGE ID       CREATED          SIZE
+test         latest            1b18c6d41842   24 seconds ago   117MB
+<none>       <none>            492afcedda29   5 minutes ago    221MB
+python       3.8-slim-buster   60abb4f18941   2 days ago       117MB
+```
+
 ## 2.2. Context
 
 > 指定上下文（Context），还是指定 Dockerfile 所在路径？
@@ -239,15 +303,3 @@ COPY ./package.json /app
 注意：docker build 命令会将**该目录下的内容**打包交给 Docker 引擎以帮助构建镜像，所以仅仅知道其下(`./`)，而不知道其上(`../`)其周围(`/opt`)。
 
 所以这些路径已经超出了上下文的范围，Docker 引擎无法获得这些位置的文件。如果真的需要那些文件，应该将它们复制到上下文目录中去。
-
-## 2.3. 用Git
-```bash
-$ docker image build -t easy-flask https://github.com/sword4869/learn_docker.git#main:01-easy/example_python
-```
-`<https://xxx/xxx.git>#<branch>:<context>`
-
-## 2.4. 用压缩包
-```bash
-$ docker image build - < context.tar.gz
-```
-自动解压缩，以其作为上下文，开始构建。
