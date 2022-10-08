@@ -186,6 +186,7 @@ CONTAINER ID   IMAGE                    COMMAND   CREATED       STATUS         P
 > all, include exited
 ```bash
 # or `docker ps -a`
+#   -a, --all. Show all containers (default shows just running)
 $ docker container ls -a
 CONTAINER ID   IMAGE                    COMMAND                  CREATED        STATUS                      PORTS     NAMES
 2a6c4ac291c4   python:3.8-slim-buster   "bash"                   2 hours ago    Exited (0) 2 hours ago                naughty_pascal
@@ -195,6 +196,7 @@ CONTAINER ID   IMAGE                    COMMAND                  CREATED        
 
 ```bash
 # or `docker ps -l`
+# -l, --latest. Show the latest created container (includes all states)
 $ docker container ls -l
 CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS                     PORTS     NAMES
 5e62446db54c   test33    "/bin/sh -c 'python3…"   5 minutes ago   Exited (0) 5 minutes ago             busy_bouman
@@ -202,7 +204,7 @@ CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS        
 # 3. Start|Stop|Restart
 ```bash
 # docker start|stop|restart <container name>
-$ docker container start|stop <container name>
+$ docker container start|stop|restart <container name>
 ```
 
 Notice: When you restart a container, it starts **with the same flags or commands** that it was originally started with. 这很方便。

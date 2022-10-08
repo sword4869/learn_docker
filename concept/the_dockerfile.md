@@ -83,6 +83,18 @@ RUN yum -y install wget \
 ```
 创建3层镜像变成，只会创建1层镜像。
 
+
+另一个写法：
+```bash
+RUN <<EOF
+# because taming-transformers is huge
+git config --global http.postBuffer 1048576000
+git clone https://github.com/CompVis/taming-transformers.git repositories/taming-transformers
+git reset --hard 24268930bf1dce879235a7fddd0b2355b84d7ea6
+rm -rf repositories/taming-transformers/data repositories/taming-transformers/assets
+EOF
+```
+
 > Upgrade问题
 
 
