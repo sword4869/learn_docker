@@ -11,7 +11,7 @@ hello
 
 
 
-# Run in a container
+# How to run in a container
 
 Build the project to an image
 ```bash

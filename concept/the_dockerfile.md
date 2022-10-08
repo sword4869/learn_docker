@@ -84,25 +84,7 @@ RUN yum -y install wget \
 创建3层镜像变成，只会创建1层镜像。
 
 
-另一个写法：
-```bash
-RUN <<EOF
-# because taming-transformers is huge
-git config --global http.postBuffer 1048576000
-git clone https://github.com/CompVis/taming-transformers.git repositories/taming-transformers
-git reset --hard 24268930bf1dce879235a7fddd0b2355b84d7ea6
-rm -rf repositories/taming-transformers/data repositories/taming-transformers/assets
-EOF
-```
-
-> Upgrade问题
-
-
-不要使用 `RUN apt-get upgrade` 或 `dist-upgrade`，这样会升级不必要的包。
-
-如果你确定某个特定的包，比如 foo，需要升级，使用 `apt-get install -y foo` 就行，该指令会自动升级 foo 包。
-
-> 缓存问题
+> update缓存问题
 
 永远将 `RUN apt-get update` 和 `apt-get install` 组合成一条 RUN 声明，例如：
 
@@ -133,6 +115,15 @@ RUN apt-get install -y curl nginx
 ```
 Docker 发现修改后的 `RUN apt-get update` 指令和之前的完全一样。所以，这层`apt-get update` 不会执行，而是使用之前的缓存镜像。因为 `apt-get update` 没有运行，后面的 `apt-get install` 可能安装的是过时的 curl 和 nginx 版本。
 
+> install放弃问题
+
+`RUN apt-get update && apt-get install python3-dev`
+
+结果报错
+```
+Do you want to continue? [Y/n] Abort.
+```
+所以加上yes，即`RUN apt-get update && apt-get install python3-dev -y`
 ## 1.6. CMD
 
 `CMD`: 
