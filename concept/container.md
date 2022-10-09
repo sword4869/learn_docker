@@ -219,9 +219,10 @@ Let's run a test!
 sudo docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi
 ```
 
-use flag `--gpus ARG` in `docker run`. (since docker 19.03 which adds support for the `--gpu` option):
+use flag `--gpus ARG` in `docker run`. (since docker 19.03 which adds support for the `--gpu` option, and don't need `--runtime=nvidia`):
 - `--gpus all`:Exposes all GPUs.
 - `--gpus '"device=0,2"'`:Exposes the first and third GPUs.
+- `--gpus 2`: Exposes 2 GPUs.
 - `--gpus device=GPU-3a23c669-1f69-c64e-cf85-44e9b07e7a2a`: Exposes that specific GPU.
 
 # 2. List
