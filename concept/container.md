@@ -9,6 +9,7 @@
     - [1.5.2. 进入后台](#152-进入后台)
   - [1.6. 端口映射](#16-端口映射)
   - [1.7. 挂载Volume](#17-挂载volume)
+  - [1.8. GPU](#18-gpu)
 - [2. List](#2-list)
 - [3. Start|Stop|Restart](#3-startstoprestart)
 - [4. Operate a running container](#4-operate-a-running-container)
@@ -173,7 +174,52 @@ $ docker volume rm myvolume         # 删除
 $ docker run -v myvolume:/var/lib/mysql mysql
 ```
 `-v/--volume`: `<local_path>:<container_path>`.
+## 1.8. GPU
 
+!!!info re-requisite
+    - Nvidia GPU hardware in your PC host.
+    - installed Nvidia Driver in your PC host(can run `nvidia-smi`)
+    - don't need to install CUDA in your PC host(we can install it's any version in docker container)
+
+
+<https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html>
+
+`nvidia-docker`和`nvidia-docker2`不是同一个东西，`nvidia-docker`是老掉牙的东西。
+
+```
+└─ libnvidia-container1 (version)
+├─ libnvidia-container-tools (version)
+│    └─ libnvidia-container1 (>= version)
+├─ nvidia-container-toolkit (version)
+│    └─ libnvidia-container-tools (>= version)
+└─ nvidia-container-runtime
+│    └─ nvidia-container-toolkit (>= version, << 2.0.0)
+└─ nvidia-docker2
+     ├─ docker-ce || docker-ee || docker.io
+     └─ nvidia-container-toolkit (>= version)
+```
+
+`nvidia-docker2`包含了`nvidia-container-toolkit`，还支持Kubernetes。所以直接安装`nvidia-docker2`。
+
+```bash
+# distribution=ubuntu22.04
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+sudo apt-get update
+sudo apt-get install -y nvidia-docker2
+sudo systemctl restart docker
+```
+
+Let's run a test!
+```
+sudo docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi
+```
+
+use flag `--gpus all` in `docker run`.
 
 # 2. List
 > running

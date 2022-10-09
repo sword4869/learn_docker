@@ -98,34 +98,34 @@ EOF
 
 !!!info 注意：Heredoc需要docker使用BuildKit。
 
-没有开启BuildKit的样子，是这样的` ---> `：
-```bash
-$ sudo docker build -t test .
-Sending build context to Docker daemon  4.096kB
-Step 1/4 : FROM python:3.8-slim-buster
- ---> 60abb4f18941
-Step 2/4 : WORKDIR /app
-```
-开启BuildKit的样子，是这样的`=>`：
-```bash
-$ sudo docker build -t test .
-[+] Building 7.8s (10/12)
- => [internal] load build definition from Dockerfile    0.0s
- => => transferring dockerfile: 38B                     0.0s
- => [internal] load .docke
-```
+    `没有开启BuildKit的样子，是这样的` ---> `：
+    ```bash
+    $ sudo docker build -t test .
+    Sending build context to Docker daemon  4.096kB
+    Step 1/4 : FROM python:3.8-slim-buster
+    ---> 60abb4f18941
+    Step 2/4 : WORKDIR /app
+    ```
+    开启BuildKit的样子，是这样的`=>`：
+    ```bash
+    $ sudo docker build -t test .
+    [+] Building 7.8s (10/12)
+    => [internal] load build definition from Dockerfile    0.0s
+    => => transferring dockerfile: 38B                     0.0s
+    => [internal] load .docke
+    ```
 
-在build临时使用BuildKit就是
-```bash
-$ sudo DOCKER_BUILDKIT=1 docker build -t test .
-```
-长久使用就直接修改配置文件：
-```bash
-$ sudo vim /etc/docker/daemon.json
-{ "features": { "buildkit": true } }
+    在build临时使用BuildKit就是
+    ```bash
+    $ sudo DOCKER_BUILDKIT=1 docker build -t test .
+    ```
+    长久使用就直接修改配置文件：
+    ```bash
+    $ sudo vim /etc/docker/daemon.json
+    { "features": { "buildkit": true } }
 
-$ sudo service restart docker
-```
+    $ sudo service restart docker
+    ````
 
 
 
@@ -171,28 +171,20 @@ Do you want to continue? [Y/n] Abort.
 所以加上yes，即`RUN apt-get update && apt-get install python3-dev -y`
 ### 1.5.2. CMD
 
+> 作用
+
+CMD为启动的容器指定默认要运行的程序。一旦程序运行结束，容器也就结束。
+
+
+!!!note 后台服务
+    错误写法，`CMD service nginx start`。出现问题，容器执行后就立即退出了。甚至在容器内去使用 systemctl 命令结果却发现根本执行不了。原因是，`service nginx start` 命令以后台守护进程形式启动 nginx 服务，而且 `CMD service nginx start` 会被理解为 `CMD [ "sh", "-c", "service nginx start"]`，因此主进程实际上是 sh，那么当命令结束后，sh 也就结束了，sh 作为主进程退出了，自然就会令容器退出。
+    正确的做法是直接执行 nginx 可执行文件，并且要求以前台形式运行。比如：`CMD ["nginx", "-g", "daemon off;"]`
+
 
 > 最后一个
 
 注意：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。这就是为什么不能用CMD代替RUN。
 
-> 前台和后台
-
-```Dockerfile
-CMD service nginx start
-```
-
-出现问题，容器执行后就立即退出了。甚至在容器内去使用 systemctl 命令结果却发现根本执行不了。
-
-对于容器而言，其启动程序就是容器应用进程，主进程结束容器就结束。
-
-而使用 `service nginx start` 命令，则是希望以后台守护进程形式启动 nginx 服务。而刚才说了 `CMD service nginx start` 会被理解为 `CMD [ "sh", "-c", "service nginx start"]`，因此主进程实际上是 sh。那么当命令结束后，sh 也就结束了，sh 作为主进程退出了，自然就会令容器退出。
-
-正确的做法是直接执行 nginx 可执行文件，并且要求以前台形式运行。比如：
-
-```Dockerfile
-CMD ["nginx", "-g", "daemon off;"]
-```
 
 ## 1.6. ENV
 
@@ -248,39 +240,39 @@ $ docker image build -t python-dev .
 
 !!! warning 重名镜像
 
-当你指定名字build镜像后，出现了`test`镜像。在不修改Dockerfile的情况下，我们再次build名为`test`的镜像，直接build好了，而且没有新的镜像生成。这没有问题。
-```bash
-$ sudo docker build -t test .
+    当你指定名字build镜像后，出现了`test`镜像。在不修改Dockerfile的情况下，我们再次build名为`test`的镜像，直接build好了，而且没有新的镜像生成。这没有问题。
+    ```bash
+    $ sudo docker build -t test .
 
-$ sudo docker image ls
-REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
-test         latest            492afcedda29   2 minutes ago   221MB
-python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
+    $ sudo docker image ls
+    REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
+    test         latest            492afcedda29   2 minutes ago   221MB
+    python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
 
-$ sudo docker build -t test .
+    $ sudo docker build -t test .
 
-$ sudo docker image ls
-REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
-test         latest            492afcedda29   2 minutes ago   221MB
-python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
-```
-但是，当你指定名字build镜像后，生成了`test`镜像，又在修改Dockerfile后，再次build名为`test`的镜像，确实成功build了新的名为`test`镜像，同时原来的镜像就会被挤掉名字。
-```bash
-$ sudo docker build -t test .
+    $ sudo docker image ls
+    REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
+    test         latest            492afcedda29   2 minutes ago   221MB
+    python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
+    ```
+    但是，当你指定名字build镜像后，生成了`test`镜像，又在修改Dockerfile后，再次build名为`test`的镜像，确实成功build了新的名为`test`镜像，同时原来的镜像就会被挤掉名字。
+    ```bash
+    $ sudo docker build -t test .
 
-$ sudo docker image ls
-REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
-test         latest            492afcedda29   2 minutes ago   221MB
-python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
+    $ sudo docker image ls
+    REPOSITORY   TAG               IMAGE ID       CREATED         SIZE
+    test         latest            492afcedda29   2 minutes ago   221MB
+    python       3.8-slim-buster   60abb4f18941   2 days ago      117MB
 
-$ sudo docker build -t test .
+    $ sudo docker build -t test .
 
-$ sudo docker image ls
-REPOSITORY   TAG               IMAGE ID       CREATED          SIZE
-test         latest            1b18c6d41842   24 seconds ago   117MB
-<none>       <none>            492afcedda29   5 minutes ago    221MB
-python       3.8-slim-buster   60abb4f18941   2 days ago       117MB
-```
+    $ sudo docker image ls
+    REPOSITORY   TAG               IMAGE ID       CREATED          SIZE
+    test         latest            1b18c6d41842   24 seconds ago   117MB
+    <none>       <none>            492afcedda29   5 minutes ago    221MB
+    python       3.8-slim-buster   60abb4f18941   2 days ago       117MB
+    ```
 
 ## 2.2. Context
 

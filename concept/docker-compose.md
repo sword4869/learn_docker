@@ -1,0 +1,13 @@
+# GPU
+
+```yml
+service:
+    hhhhh:
+        deploy:
+        resources:
+            reservations:
+            devices:
+                - driver: nvidia
+                    device_ids: ['0']
+                    capabilities: [gpu]
+```
