@@ -1,0 +1,11 @@
+{
+  "name": "learn_docker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:sword4869/learn_docker.git",
+  "author": "sword4869 <1084662708@qq.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.9.7"
+  }
+}

@@ -4,14 +4,14 @@
 
 ```yml
 service:
-    hhhhh:
-        deploy:
-        resources:
-            reservations:
-            devices:
-                - driver: nvidia
-                  device_ids: ['0']
-                  capabilities: [gpu]
+  hhhhh:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
 ```
 2. `count` can be used to limit the number of GPU devices assigned to a service container
 ```yml

@@ -3,7 +3,7 @@
   - [1.2. FROM](#12-from)
   - [1.3. WORKDIR](#13-workdir)
   - [1.4. COPY and ADD](#14-copy-and-add)
-  - [1.5. RUN && CMD](#15-run--cmd)
+  - [1.5. RUN \&\& CMD](#15-run--cmd)
     - [1.5.1. RUN](#151-run)
     - [1.5.2. CMD](#152-cmd)
   - [1.6. ENV](#16-env)
@@ -13,7 +13,7 @@
   - [2.2. Context](#22-context)
 ---
 # 1. Dockerfile Format
-```
+```dockerfile
 # syntax=docker/dockerfile:1
 
 FROM node:12-alpine
@@ -74,7 +74,7 @@ RUN在docker build时运行，CMD在docker run时运行。
 
 Dockerfile 中每一个指令都会建立一层。
 所以可以合并的RUN就合并:
-```bash
+```dockerfile
 RUN yum -y install wget
 RUN wget -O redis.tar.gz "http://download.redis.io/releases/redis-5.0.3.tar.gz"
 RUN tar -xvf redis.tar.gz
@@ -88,7 +88,7 @@ RUN yum -y install wget \
 
 
 另一种 Heredoc 写法：
-```bash
+```dockerfile
 RUN <<EOF
 yum -y install wget
 wget -O redis.tar.gz "http://download.redis.io/releases/redis-5.0.3.tar.gz"
@@ -274,6 +274,8 @@ $ docker image build -t python-dev .
     python       3.8-slim-buster   60abb4f18941   2 days ago       117MB
     ```
 
+    所以, 要删除原来的镜像后, 再build.
+
 ## 2.2. Context
 
 > 指定上下文（Context），还是指定 Dockerfile 所在路径？
@@ -284,7 +286,7 @@ COPY ./package.json /app
 ```
 这并不是要复制执行 docker build 命令所在的目录下的 package.json，也不是复制 Dockerfile 所在目录下的 package.json，而是复制 上下文（context） 目录下的 package.json。
 
-`.` 表示当前目录，而 Dockerfile 就在当前目录，因此不少初学者以为这个路径是在指定 Dockerfile 所在路径，这么理解其实是不准确的。
+`.` 表示**当前目录**，而 Dockerfile 一般就在当前目录，因此不少初学者以为这个路径是在指定 Dockerfile 所在路径，这么理解其实是不准确的。
 
 那么为什么会有人误以为 . 是指定 Dockerfile 所在目录呢？这是因为在默认情况下，如果不额外指定 Dockerfile 的话，会将上下文目录下的名为 Dockerfile 的文件作为 Dockerfile。而一般大家习惯性的会使用默认的文件名 Dockerfile，以及会将其置于镜像构建上下文目录中.
 

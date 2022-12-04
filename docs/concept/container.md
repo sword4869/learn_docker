@@ -1,19 +1,18 @@
 - [1. Create and Start](#1-create-and-start)
   - [1.1. 基本](#11-基本)
-  - [1.2. 交互终端](#12-交互终端)
-    - [1.2.1. When creating](#121-when-creating)
-  - [1.3. 启动时执行命令](#13-启动时执行命令)
-  - [1.4. 容器命名](#14-容器命名)
-  - [1.5. 后台](#15-后台)
-    - [1.5.1. log](#151-log)
-    - [1.5.2. 进入后台](#152-进入后台)
-  - [1.6. 端口映射](#16-端口映射)
-  - [1.7. 挂载Volume](#17-挂载volume)
-  - [1.8. GPU](#18-gpu)
+  - [1.2. 交互和后台](#12-交互和后台)
+    - [1.2.1. it交互](#121-it交互)
+    - [1.2.2. 启动时执行命令](#122-启动时执行命令)
+    - [1.2.3. 后台](#123-后台)
+      - [1.2.3.1. log](#1231-log)
+      - [1.2.3.2. 进入后台](#1232-进入后台)
+  - [1.3. 容器命名](#13-容器命名)
+  - [1.4. 端口映射](#14-端口映射)
+  - [1.5. 挂载Volume](#15-挂载volume)
+  - [1.6. GPU](#16-gpu)
 - [2. List](#2-list)
 - [3. Start|Stop|Restart](#3-startstoprestart)
 - [4. Operate a running container](#4-operate-a-running-container)
-  - [4.1. 启动后执行命令](#41-启动后执行命令)
 - [5. Remove](#5-remove)
   - [5.1. Automaically remove](#51-automaically-remove)
   - [5.2. Manually remove exited](#52-manually-remove-exited)
@@ -46,9 +45,39 @@ When you run this command, the following happens:
 
 
 
-## 1.2. 交互终端
+## 1.2. 交互和后台
 
-### 1.2.1. When creating
+> 都可以start
+
+```bash
+# 进入bash, 但是bash里exit后容器状态是Exited
+$ docker run -it ubuntu bash
+
+# 创建完的状态是up, bash里exit后容器状态还是up
+$ docker run -itd ubuntu bash
+```
+这两种方式都能进入bash.
+
+想直接进入bash, 就用前者.
+
+想开一个容器挂着, 用后者.
+
+> 不可start
+
+```bash
+# 即死状态
+# $ docker run ubuntu
+# $ docker run -d ubuntu
+# $ docker run ubuntu ls
+# $ docker run -d ubuntu ls
+```
+
+创建完后都一样是 Exited, 而且你start不了, 一直是Exited状态. 所以我称之为即死状态.
+
+前两种完全就是废物. 后面两种还有点作用, 用来执行一次性的命令. 区别就是前者, 直接打印到host控制台, 后者还得用`docker container logs xxx`来查看.
+
+PS: 其实还是有能用的地方, 就是执行有前台任务的镜像, 比如 nginx.
+### 1.2.1. it交互
 
 用于可以交互终端的镜像，对不能交互的镜像来说该参数被忽略：
 
@@ -82,7 +111,9 @@ $ docker run -it python:3.8-slim-buster bash
 ```
 
 
-## 1.3. 启动时执行命令
+### 1.2.2. 启动时执行命令
+
+上面的指定终端其实就是启动时执行命令.
 
 ```bash
 $ docker run ubuntu cat /proc/version
@@ -93,7 +124,37 @@ If you have many commant to run, you can write a script in your local device, `d
 
 
 
-## 1.4. 容器命名
+
+### 1.2.3. 后台
+
+```bash
+$ docker run -d ubuntu
+```
+`-d/--detach` - run the container in detached mode (in the background)
+
+如果不使用 `-d` 参数运行容器，容器会把输出的结果 (STDOUT) 打印到宿主机上面。
+
+如果使用了 `-d` 参数运行容器。此时容器会在后台运行并不会把输出的结果 (STDOUT) 打印到宿主机上面(输出结果可以用 `docker logs` 查看)。
+
+#### 1.2.3.1. log
+
+```bash
+# or docker logs <container name or id>
+$ docker container logs my_ubuntu
+hello
+```
+- `f` : 跟踪日志输出
+
+- `t` : 显示时间戳
+
+#### 1.2.3.2. 进入后台
+
+当容器正在后台运行时，来进入处于后台的容器。
+```bash
+$ docker container exec -it my_ubuntu /bin/bash
+```
+
+## 1.3. 容器命名
 
 > 默认是随机命名
 ```bash
@@ -109,34 +170,7 @@ $ docker container ls -l
 # docker run --name <container name> <image name>
 $ docker run --name my_ubuntu ubuntu
 ```
-
-## 1.5. 后台
-
-```bash
-$ docker run -d ubuntu
-```
-`-d/--detach` - run the container in detached mode (in the background)
-
-如果不使用 `-d` 参数运行容器，容器会把输出的结果 (STDOUT) 打印到宿主机上面。
-
-如果使用了 `-d` 参数运行容器。此时容器会在后台运行并不会把输出的结果 (STDOUT) 打印到宿主机上面(输出结果可以用 `docker logs` 查看)。
-
-### 1.5.1. log
-
-```bash
-# or docker logs <container name or id>
-$ docker container logs my_ubuntu
-hello
-```
-- `f` : 跟踪日志输出
-
-- `t` : 显示时间戳
-
-### 1.5.2. 进入后台
-
-当容器正在后台运行时，可以利用`docker container exec -it my_ubuntu /bin/bash`来进入处于后台的容器。
-
-## 1.6. 端口映射
+## 1.4. 端口映射
 
 ```bash
 $ docker run -d -p 8000:80 docker/getting-started
@@ -147,7 +181,7 @@ $ docker container ls -l
 CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                  NAMES
 8094c7cb8aa7   docker/getting-started   "/docker-entrypoint.…"   25 seconds ago   Up 24 seconds   0.0.0.0:8000->80/tcp   hopeful_faraday
 ```
-`-p/--publish [host]:[container]` - map port 8000 of the host to port 80 in the container。`0.0.0.0:8000->80/tcp`表示container使用tcp将80映射到主机的`localhost:8000`端口。现在在主机浏览器输入`http://localhost:8000`就能进入前端。
+`-p/--publish [host]:[container]`: map port 8000 of the host to port 80 in the container。`0.0.0.0:8000->80/tcp`表示container使用tcp将80映射到主机的`localhost:8000`端口。现在在主机浏览器输入`http://localhost:8000`就能进入前端。
 
 ```bash
 $ docker run -d -P docker/getting-started        
@@ -161,7 +195,7 @@ $ docker port happy_galois
 
 
 
-## 1.7. 挂载Volume
+## 1.5. 挂载Volume
 
 ```bash
 $ docker volume create myvolume     # 创建数据卷`myvolume`
@@ -174,7 +208,7 @@ $ docker volume rm myvolume         # 删除
 $ docker run -v myvolume:/var/lib/mysql mysql
 ```
 `-v/--volume`: `<local_path>:<container_path>`.
-## 1.8. GPU
+## 1.6. GPU
 
 !!!info re-requisite
     - Nvidia GPU hardware in your PC host.
@@ -216,7 +250,33 @@ sudo systemctl restart docker
 
 Let's run a test!
 ```
-sudo docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi
+$ sudo docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi
+Thu Nov 24 09:14:50 2022       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 515.65.01    Driver Version: 515.65.01    CUDA Version: 11.7     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
+|  0%   35C    P8     5W / 250W |      8MiB / 11264MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   1  NVIDIA GeForce ...  Off  | 00000000:03:00.0 Off |                  N/A |
+|  0%   34C    P8     5W / 250W |      8MiB / 11264MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|    0   N/A  N/A    261440      G   /usr/lib/xorg/Xorg                  4MiB |
+|    1   N/A  N/A    261440      G   /usr/lib/xorg/Xorg                  4MiB |
++-----------------------------------------------------------------------------+
+
 ```
 
 use flag `--gpus ARG` in `docker run`. (since docker 19.03 which adds support for the `--gpu` option, and don't need `--runtime=nvidia`):
@@ -261,7 +321,7 @@ Notice: When you restart a container, it starts **with the same flags or command
 
 # 4. Operate a running container
 
-## 4.1. 启动后执行命令
+要在启动后才能执行命令
 
 ```bash
 # or docker exec <container name or id>
@@ -301,13 +361,16 @@ $ docker run --rm -it ubuntu
 
 ```bash
 # or docker rm [<container name or id>]
+# 一次能删除多个
 $ docker container rm my_ubuntu agitated_moser
 ```
-一次能删除多个
+挂载的volume不会被删.
 
-When a container is removed, any changes to its state that are not stored in persistent storage disappear.
-
-要另外保存下来不删档的数据区域 Volume。
+```bash
+# 一次性
+$ docker container stop `docker container ls -aq`
+$ docker container rm `docker container ls -aq`
+```
 
 ## 5.3. Remove all exited
 
