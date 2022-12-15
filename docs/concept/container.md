@@ -1,27 +1,29 @@
-- [1. Create and Start](#1-create-and-start)
-  - [1.1. 基本](#11-基本)
-  - [1.2. 交互和后台](#12-交互和后台)
-    - [1.2.1. it交互](#121-it交互)
-    - [1.2.2. 启动时执行命令](#122-启动时执行命令)
-    - [1.2.3. 后台](#123-后台)
-      - [1.2.3.1. log](#1231-log)
-      - [1.2.3.2. 进入后台](#1232-进入后台)
-  - [1.3. 容器命名](#13-容器命名)
-  - [1.4. 端口映射](#14-端口映射)
-  - [1.5. 挂载Volume](#15-挂载volume)
-  - [1.6. GPU](#16-gpu)
-- [2. List](#2-list)
-- [3. Start|Stop|Restart](#3-startstoprestart)
-- [4. Operate a running container](#4-operate-a-running-container)
-- [5. Remove](#5-remove)
-  - [5.1. Automaically remove](#51-automaically-remove)
-  - [5.2. Manually remove exited](#52-manually-remove-exited)
-  - [5.3. Remove all exited](#53-remove-all-exited)
+- [1. container](#1-container)
+  - [1.1. Create and Start](#11-create-and-start)
+    - [1.1.1. 基本](#111-基本)
+    - [1.1.2. 交互和后台](#112-交互和后台)
+      - [1.1.2.1. it交互](#1121-it交互)
+      - [1.1.2.2. 启动时执行命令](#1122-启动时执行命令)
+      - [1.1.2.3. 后台](#1123-后台)
+        - [1.1.2.3.1. log](#11231-log)
+        - [1.1.2.3.2. 进入后台](#11232-进入后台)
+    - [1.1.3. 容器命名](#113-容器命名)
+    - [1.1.4. 端口映射](#114-端口映射)
+    - [1.1.5. 挂载Volume](#115-挂载volume)
+    - [1.1.6. GPU](#116-gpu)
+  - [1.2. List](#12-list)
+  - [1.3. Start|Stop|Restart](#13-startstoprestart)
+  - [1.4. Operate a running container](#14-operate-a-running-container)
+  - [1.5. Remove](#15-remove)
+    - [1.5.1. Automaically remove](#151-automaically-remove)
+    - [1.5.2. Manually remove exited](#152-manually-remove-exited)
+    - [1.5.3. Remove all exited](#153-remove-all-exited)
 
 ---
-# 1. Create and Start
+# 1. container
+## 1.1. Create and Start
 
-## 1.1. 基本
+### 1.1.1. 基本
 
 ```bash
 # 使用指定镜像来创建一个容器
@@ -45,7 +47,7 @@ When you run this command, the following happens:
 
 
 
-## 1.2. 交互和后台
+### 1.1.2. 交互和后台
 
 > 都可以start
 
@@ -77,7 +79,7 @@ $ docker run -itd ubuntu bash
 前两种完全就是废物. 后面两种还有点作用, 用来执行一次性的命令. 区别就是前者, 直接打印到host控制台, 后者还得用`docker container logs xxx`来查看.
 
 PS: 其实还是有能用的地方, 就是执行有前台任务的镜像, 比如 nginx.
-### 1.2.1. it交互
+#### 1.1.2.1. it交互
 
 用于可以交互终端的镜像，对不能交互的镜像来说该参数被忽略：
 
@@ -111,7 +113,7 @@ $ docker run -it python:3.8-slim-buster bash
 ```
 
 
-### 1.2.2. 启动时执行命令
+#### 1.1.2.2. 启动时执行命令
 
 上面的指定终端其实就是启动时执行命令.
 
@@ -125,7 +127,7 @@ If you have many commant to run, you can write a script in your local device, `d
 
 
 
-### 1.2.3. 后台
+#### 1.1.2.3. 后台
 
 ```bash
 $ docker run -d ubuntu
@@ -136,7 +138,7 @@ $ docker run -d ubuntu
 
 如果使用了 `-d` 参数运行容器。此时容器会在后台运行并不会把输出的结果 (STDOUT) 打印到宿主机上面(输出结果可以用 `docker logs` 查看)。
 
-#### 1.2.3.1. log
+##### 1.1.2.3.1. log
 
 ```bash
 # or docker logs <container name or id>
@@ -147,14 +149,14 @@ hello
 
 - `t` : 显示时间戳
 
-#### 1.2.3.2. 进入后台
+##### 1.1.2.3.2. 进入后台
 
 当容器正在后台运行时，来进入处于后台的容器。
 ```bash
 $ docker container exec -it my_ubuntu /bin/bash
 ```
 
-## 1.3. 容器命名
+### 1.1.3. 容器命名
 
 > 默认是随机命名
 ```bash
@@ -170,7 +172,7 @@ $ docker container ls -l
 # docker run --name <container name> <image name>
 $ docker run --name my_ubuntu ubuntu
 ```
-## 1.4. 端口映射
+### 1.1.4. 端口映射
 
 ```bash
 $ docker run -d -p 8000:80 docker/getting-started
@@ -195,7 +197,7 @@ $ docker port happy_galois
 
 
 
-## 1.5. 挂载Volume
+### 1.1.5. 挂载Volume
 
 ```bash
 $ docker volume create myvolume     # 创建数据卷`myvolume`
@@ -208,7 +210,7 @@ $ docker volume rm myvolume         # 删除
 $ docker run -v myvolume:/var/lib/mysql mysql
 ```
 `-v/--volume`: `<local_path>:<container_path>`.
-## 1.6. GPU
+### 1.1.6. GPU
 
 !!!info re-requisite
     - Nvidia GPU hardware in your PC host.
@@ -285,7 +287,7 @@ use flag `--gpus ARG` in `docker run`. (since docker 19.03 which adds support fo
 - `--gpus 2`: Exposes 2 GPUs.
 - `--gpus device=GPU-3a23c669-1f69-c64e-cf85-44e9b07e7a2a`: Exposes that specific GPU.
 
-# 2. List
+## 1.2. List
 > running
 ```bash
 # or `docker ps`
@@ -311,7 +313,7 @@ $ docker container ls -l
 CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS                     PORTS     NAMES
 5e62446db54c   test33    "/bin/sh -c 'python3…"   5 minutes ago   Exited (0) 5 minutes ago             busy_bouman
 ```
-# 3. Start|Stop|Restart
+## 1.3. Start|Stop|Restart
 ```bash
 # docker start|stop|restart <container name>
 $ docker container start|stop|restart <container name>
@@ -319,7 +321,7 @@ $ docker container start|stop|restart <container name>
 
 Notice: When you restart a container, it starts **with the same flags or commands** that it was originally started with. 这很方便。
 
-# 4. Operate a running container
+## 1.4. Operate a running container
 
 要在启动后才能执行命令
 
@@ -346,16 +348,16 @@ root@011e5ebaf23e:/#
 
 
 
-# 5. Remove
+## 1.5. Remove
 
-## 5.1. Automaically remove
+### 1.5.1. Automaically remove
 
 `--rm`
 ```bash
 $ docker run --rm -it ubuntu
 ```
 
-## 5.2. Manually remove exited
+### 1.5.2. Manually remove exited
 
 正在运行的容器要停止后才能删除。
 
@@ -372,7 +374,7 @@ $ docker container stop `docker container ls -aq`
 $ docker container rm `docker container ls -aq`
 ```
 
-## 5.3. Remove all exited
+### 1.5.3. Remove all exited
 
 如果数量太多要一个个删除可能会很麻烦，用下面的命令可以清理掉所有处于终止状态的容器。
 ```
