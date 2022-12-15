@@ -6,10 +6,7 @@
   "author": "sword4869 <1084662708@qq.com>",
   "license": "MIT",
   "devDependencies": {
-    "vuepress": "^1.9.7"
-  },
-  "scripts": {
-    "vuepress:dev": "vuepress dev docs",
-    "vuepress:build": "vuepress build docs"
+    "vuepress": "^2.0.0-beta.59",
+    "vuepress-theme-hope": "^2.0.0-beta.143"
   }
 }
